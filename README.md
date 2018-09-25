@@ -5,22 +5,28 @@ This came about due to a desire to have a decent multi-step http monitor from th
 ## Features
 
 * Monitoring specs defined in JSON
-* Multi-step http/https checking with cookiejar
+* Multi-step http/https checking with session cookiejar
 * Content checking
 * Response time thresholds (default 10 sec)
+* SSL Client certs
+* BASIC Auth
+* Form parameters
+* HTTP Headers
 
 ## Usage
+
+./check_http_improved   (currently loads hardcoded "monitor.json")
 
 ## JSON Spec
 ```
 {
   "name": "my monitor name",      (optional)
   "debug": "True",                (default "False")
-  "method": "get",                (default "get", other options "post","put","options", etc)
   "checks": [
     { 
       "desc": "login to xyz",                         (optional)
       "url": "https://somesite.example.com",
+      "method": "get",                                (default "get", other options "post","put","options", etc)
       "allow_redirects": "True",                      (default False)
       "auth": ["username","password"],                (optional)
       "headers": {"X-head-1": "foo", "X-2": "bar"},   (optionally add request headers)
@@ -29,7 +35,8 @@ This came about due to a desire to have a decent multi-step http monitor from th
       "contentcheck": "Some text in the response",    (optional)
       "cert": ["/path/cert_file","/path/key_file"],   (optional SSL client cert)
       "stop_on_fail": "False"                         (default True)
-    }
+    },
+    { ... }, { ... }
   ]
 }
 ```
@@ -37,7 +44,8 @@ This came about due to a desire to have a decent multi-step http monitor from th
 ## Note to self/roadmap
 
 - json output
-- custom header capability?
+- preset cookie capability?
 - do not verify https cert
-- specify IP for URL / do not use DNS
+- specify IP for URL / do not use DNS (needs transport adapter, similar to https://github.com/RhubarbSin/example-requests-transport-adapter/blob/master/adapter.py)
+
 
