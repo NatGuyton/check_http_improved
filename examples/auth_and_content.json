@@ -1,0 +1,8 @@
+{
+    "name": "My monitor",
+    "steps": [
+      { "url": "https://mysite.example.com/admin",
+	"auth": ["admin","testpass"] ,
+	"contentcheck": "Mysite Main Page" }
+    ]
+}

@@ -1,0 +1,12 @@
+{
+    "name": "SuperSecure Site",
+    "debug": "False",
+    "steps": [
+      { "desc": "Pull up login page",
+	"url": "https://supersecure.example.com",
+	"cert": ["/path/to/server-crt",
+		 "/path/to/server-key"],
+	"allow_redirects": "True",
+	"contentcheck": "My Site Login"}
+    ]
+}

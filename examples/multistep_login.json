@@ -1,0 +1,16 @@
+{
+    "name": "My monitor",
+    "debug": "False",
+    "steps": [
+      { "desc": "Pull up login page",
+	"url": "https://mysite.example.com/auth",
+	"allow_redirects": "True",
+	"contentcheck": "My Auth Form",
+	"status_pass": 401},
+      { "desc": "Login to site",
+	"url": "https://mysite.example.com/auth", 
+	"method": "post",
+	"params": {"user":"admin","pass":"adminpass"},
+	"contentcheck": "welcome admin" }
+    ]
+}

@@ -1,0 +1,89 @@
+#!/usr/bin/env python
+#
+# http://docs.python-requests.org/en/master/_modules/requests/api/ useful resource
+#
+# output_style:  default, json, sitescope, nagios
+# output_level:  default, detailed, debug
+
+import requests,json
+
+fh = open("monitor.json")
+m_json = fh.read()
+fh.close()
+m_data = json.loads(m_json)
+
+debug=False
+if "debug" in m_data.keys():
+    if m_data["debug"] == "True":
+	debug=True
+
+if debug: print(m_json) 
+
+session = requests.session()
+step_number=0
+num_steps = len(m_data["steps"])
+
+for monitor in m_data["steps"]:
+    step_number = step_number + 1
+    if step_number > 1: print('')
+    step_desc=""
+    if "desc" in monitor.keys(): step_desc = "- " + monitor["desc"]
+    if num_steps > 1: print("Step "+str(step_number)+" "+step_desc)
+    if "method" in monitor.keys():
+        method=monitor["method"]
+    else:
+        method="get"
+
+    kwargs={'allow_redirects': False, 'timeout': 10}
+    if "allow_redirects" in monitor.keys():
+	kwargs["allow_redirects"]=monitor["allow_redirects"]
+    if "auth" in monitor.keys():
+	kwargs["auth"]=(monitor["auth"][0],monitor["auth"][1])
+    if "params" in monitor.keys():
+	kwargs["params"]=monitor["params"]
+    if "timeout" in monitor.keys():
+	kwargs["timeout"]=monitor["timeout"]
+    if "cert" in monitor.keys():
+	kwargs["cert"]=(monitor["cert"][0],monitor["cert"][1])
+    if "headers" in monitor.keys():
+	kwargs["headers"]=monitor["headers"]
+
+    stop_on_fail=True
+    if "stop_on_fail" in monitor.keys():
+	if monitor["stop_on_fail"] == "False":
+	    stop_on_fail=False
+
+    print("URL: "+monitor["url"])
+    if debug: 
+	print("method: "+method)
+	print("kwargs: ",kwargs)
+
+    try:
+        response = session.request(method, monitor["url"], **kwargs)
+    except requests.exceptions.ConnectTimeout:
+	print("FAIL: Connection Timeout ("+str(monitor["timeout"])+" seconds)")
+	if stop_on_fail: exit(1)
+
+    print("HTTP "+str(response.status_code))
+    if debug: print(response.headers)
+    if "status_pass" in monitor.keys():
+	status_pass = str(monitor["status_pass"])
+    else:
+	status_pass = "200"
+    if status_pass != str(response.status_code):
+	print "FAIL status code"
+	if stop_on_fail: exit(1)
+    else:
+	print "PASS status code"
+
+    if debug: print(response.content)
+
+    if "contentcheck" in monitor.keys():
+	content = unicode(response.content, errors='ignore')
+	if monitor["contentcheck"] in content:
+	    print "PASS Content check: \""+monitor["contentcheck"]+"\" found"
+	else:
+	    print "FAIL Content check: \"{}\" NOT found".format(monitor["contentcheck"])
+	    if stop_on_fail: exit(1)
+
+if debug: print(session) 
