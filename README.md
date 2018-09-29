@@ -28,6 +28,7 @@ This came about due to a desire to have a decent multi-step http monitor from th
       "url": "https://somesite.example.com",
       "method": "get",                                (default "get", other options "post","put","options", etc)
       "allow_redirects": "True",                      (default False)
+      "params": {"var1":"val1","var2":"val2"},        (optional form data)
       "auth": ["username","password"],                (optional)
       "headers": {"X-head-1": "foo", "X-2": "bar"},   (optionally add request headers)
       "timeout": 20,                                  (default 10 seconds, decimals acceptable, ie 0.5)
