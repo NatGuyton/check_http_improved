@@ -5,7 +5,8 @@
 # output_style:  default, json, sitescope, nagios
 # output_level:  default, detailed, debug
 
-import requests,json
+import requests,json,urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 fh = open("monitor.json")
 m_json = fh.read()
@@ -34,7 +35,7 @@ for monitor in m_data["steps"]:
     else:
         method="get"
 
-    kwargs={'allow_redirects': False, 'timeout': 10}
+    kwargs={'allow_redirects': False, 'timeout': 10 }
     if "allow_redirects" in monitor.keys():
 	kwargs["allow_redirects"]=monitor["allow_redirects"]
     if "auth" in monitor.keys():
