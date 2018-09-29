@@ -33,6 +33,8 @@ This came about due to a desire to have a decent multi-step http monitor from th
       "auth": ["username","password"],                (optional)
       "headers": {"X-head-1": "foo", "X-2": "bar"},   (optionally add request headers)
       "timeout": 20,                                  (default 10 seconds, decimals acceptable, ie 0.5)
+      "data": "...",                                  (optional POST data)
+      "json": "...",                                  (optional JSON POST data, sets content-type)
       "status_pass": 401,			      (default 200, but can set expected alternate status)
       "contentcheck": "Some text in the response",    (optional)
       "cert": ["/path/cert_file","/path/key_file"],   (optional SSL client cert)
@@ -50,4 +52,5 @@ This came about due to a desire to have a decent multi-step http monitor from th
 - preset cookie capability?
 - specify IP for URL / do not use DNS (needs transport adapter, similar to https://github.com/RhubarbSin/example-requests-transport-adapter/blob/master/adapter.py)
 - on Multistep, allow taking a form from one step and submitting it, optionally adding values
+- proxy capability (std or socks proxy)
 
