@@ -33,7 +33,7 @@ This came about due to a desire to have a decent multi-step http monitor from th
       "auth": ["username","password"],                (optional)
       "headers": {"X-head-1": "foo", "X-2": "bar"},   (optionally add request headers)
       "timeout": 20,                                  (default 10 seconds, decimals acceptable, ie 0.5)
-      "conn_timeout": 3.5,                              (optionally can specify separate connection and read timeouts instead of the overall timeout - defaults 3.5, 10 if one not given)
+      "conn_timeout": 3.5,                            (optionally can specify separate connection and read timeouts instead of the overall timeout - defaults 3.5, 10 if one not given)
       "read_timeout": 10,
       "data": "...",                                  (optional POST data)
       "json": "...",                                  (optional JSON POST data, sets content-type)
