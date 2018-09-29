@@ -8,6 +8,7 @@ This came about due to a desire to have a decent multi-step http monitor from th
 * Multi-step http/https checking with session cookiejar
 * Content checking
 * Response time thresholds (default 10 sec)
+* SSL verify disable option or specify alternate CA file
 * SSL Client certs
 * BASIC Auth
 * Form parameters
@@ -35,6 +36,7 @@ This came about due to a desire to have a decent multi-step http monitor from th
       "status_pass": 401,			      (default 200, but can set expected alternate status)
       "contentcheck": "Some text in the response",    (optional)
       "cert": ["/path/cert_file","/path/key_file"],   (optional SSL client cert)
+      "ssl_verify": "/path/to/ca_bundle",             (default True, also can be "False", or path to ca file)
       "stop_on_fail": "False"                         (default True)
     },
     { ... }, { ... }
@@ -46,7 +48,6 @@ This came about due to a desire to have a decent multi-step http monitor from th
 
 - json output
 - preset cookie capability?
-- do not verify https cert
 - specify IP for URL / do not use DNS (needs transport adapter, similar to https://github.com/RhubarbSin/example-requests-transport-adapter/blob/master/adapter.py)
-
+- on Multistep, allow taking a form from one step and submitting it, optionally adding values
 

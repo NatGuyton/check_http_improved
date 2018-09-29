@@ -47,6 +47,11 @@ for monitor in m_data["steps"]:
 	kwargs["cert"]=(monitor["cert"][0],monitor["cert"][1])
     if "headers" in monitor.keys():
 	kwargs["headers"]=monitor["headers"]
+    if "ssl_verify" in monitor.keys():
+	if monitor["ssl_verify"] == "False":
+	    kwargs["verify"] = False
+	else:
+	    kwargs["verify"]=monitor["ssl_verify"]
 
     stop_on_fail=True
     if "stop_on_fail" in monitor.keys():
