@@ -2,6 +2,8 @@
 
 This came about due to a desire to have a decent multi-step http monitor from the command line, possibly used with nagios/icinga and that monitoring ecosystem, as well as a script monitor replacement for the http monitor in our antiquated SiteScope, which has multi-step capability, but does not speak TLS 1.1 or higher.
 
+This should ideally be used with Python 3.4 or higher if you want SNI support.  
+
 ## Features
 
 * Monitoring specs defined in JSON
@@ -13,6 +15,7 @@ This came about due to a desire to have a decent multi-step http monitor from th
 * BASIC Auth
 * Form parameters
 * HTTP Headers
+* Output formats in json (default), raw human readable, and nagios/icinga plugin format
 
 ## Usage
 

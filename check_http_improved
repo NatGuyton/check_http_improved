@@ -175,6 +175,22 @@ except:
     print("Unexpected error:", sys.exc_info()[1])
     print("Unexpected error:", sys.exc_info()[2])
 finally:
-    print(json.dumps(result, sort_keys=True, indent=2))
+
+    # Print in the desired output format and exit
+    if args.output == "raw":
+        print("Monitor: {}\nResult: {}".format(result["monitor"],result["status"]))
+        checkcount=0
+        for check in result["checks"]:
+            print("")
+            if "desc" in check.keys(): print("  {}".format(check["desc"]))
+            print("  {}\n  Result: {}\n  {}\n  {} seconds".format(check["url"],check["status"],check["message"],check["time"]))
+    elif args.output == "nagios":
+	# get the message from the last check run
+        numchecks = len(result["checks"])
+        message = result["checks"][numchecks-1]["message"]
+        print("{} - {}".format(result["status"],message))
+    else:
+        print(json.dumps(result, sort_keys=True, indent=2))
+
     exit(exitcodes[result["status"]])
 
