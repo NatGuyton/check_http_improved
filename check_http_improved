@@ -121,7 +121,10 @@ for monitor in m_data["steps"]:
     if debug: print(response.text)
 
     if "contentcheck" in monitor.keys():
-        content = unicode(response.content, errors='ignore')
+        if sys.version_info[0] == 2:
+            content = unicode(response.content, errors='ignore')
+        else:
+            content = str(response.content)
         if monitor["contentcheck"] in content:
             print("PASS Content check: \""+monitor["contentcheck"]+"\" found")
         else:
