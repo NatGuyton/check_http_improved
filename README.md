@@ -16,12 +16,20 @@ This came about due to a desire to have a decent multi-step http monitor from th
 
 ## Usage
 
-```sh
-./check_http_improved  (looks for and loads "monitor.json")
 ```
-or 
-```sh
-./check_http_improved  <json filename>
+usage: check_http_improved [-h] [-o {raw,json,nagios}] [-m MONITOR]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o {raw,json,nagios}, --output {raw,json,nagios}
+                        optional output formats
+  -m MONITOR, --monitor MONITOR
+                        monitor spec file, defaults to monitor.json
+
+
+./check_http_improved   (looks for and loads "monitor.json")
+
+./check_http_improved  -m <json filename> -o nagios
 ```
 
 ## JSON Spec
@@ -57,9 +65,8 @@ or
 
 ## Note to self/roadmap
 
-- json output
 - preset cookie capability?
 - specify IP for URL / do not use DNS (needs transport adapter, similar to https://github.com/Roadmaster/forcediphttpsadapter)
-- on Multistep, allow taking a form from one step and submitting it on the next step, optionally adding values
+- on Multistep, allow taking a form from one step and submitting it on the next step, optionally adding values, similar to https://mechanize.readthedocs.io/en/latest/
 - proxy capability (std or socks proxy)
 

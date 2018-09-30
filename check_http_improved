@@ -4,14 +4,20 @@
 #
 from __future__ import print_function
 
-import sys,requests,json,urllib3
+import sys,requests,json,urllib3,time,argparse
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+### GET INPUTS
+parser = argparse.ArgumentParser()
+parser.add_argument("-o", "--output", choices=["json", "raw", "nagios"], help="optional output formats, default json")
+parser.add_argument("-m", "--monitor", help="monitor spec file, defaults to monitor.json")
+args = parser.parse_args()
+
 # Read in the file; assume "monitor.json" if none given
-if len(sys.argv) == 1:
-    filename="monitor.json"
+if args.monitor:
+    filename=args.monitor
 else:
-    filename=sys.argv[1]
+    filename="monitor.json"
 
 try:
     fh = open(filename)
@@ -27,108 +33,137 @@ debug=False
 if "debug" in m_data.keys():
     if m_data["debug"] == "True":
         debug=True
+if debug: print(m_json, file=sys.stderr) 
 
-if debug: print(m_json) 
 
+### Set up for run
 session = requests.session()
 step_number=0
 num_steps = len(m_data["steps"])
 default_conn_timeout = 3.5
 default_read_timeout = 10
+exitcodes = {"OK": 0, "WARNING": 1, "CRITICAL": 2, "UNKNOWN": 3}
+result = {"status": "UNKNOWN", "checks": []}
+if "name" in m_data.keys(): result["monitor"] = m_data["name"]
 
-for monitor in m_data["steps"]:
-    step_number = step_number + 1
-    if step_number > 1: print('')
-    step_desc=""
-    if "desc" in monitor.keys(): step_desc = "- " + monitor["desc"]
-    if num_steps > 1: print("Step "+str(step_number)+" "+step_desc)
-    if "method" in monitor.keys():
-        method=monitor["method"]
-    else:
-        method="get"
-    disable_sni_warning=False
-    if "disable_sni_warning" in monitor.keys():
-        if monitor["disable_sni_warning"] == "True":
-            disable_sni_warning=True
 
-    kwargs={'allow_redirects': False, 'timeout': 10 }
-    if "allow_redirects" in monitor.keys():
-        kwargs["allow_redirects"]=monitor["allow_redirects"]
-    if "auth" in monitor.keys():
-        kwargs["auth"]=(monitor["auth"][0],monitor["auth"][1])
-    if "params" in monitor.keys():
-        kwargs["params"]=monitor["params"]
-    if "timeout" in monitor.keys():
-        kwargs["timeout"]=monitor["timeout"]
-    if "conn_timeout" in monitor.keys() or "read_timeout" in monitor.keys():
-        conn_timeout = default_conn_timeout
-        read_timeout = default_read_timeout
-        if "conn_timeout" in monitor.keys():
-            conn_timeout = monitor["conn_timeout"]
-        if "read_timeout" in monitor.keys():
-            read_timeout = monitor["read_timeout"]
-        kwargs["timeout"]=(conn_timeout,read_timeout)
-    if "cert" in monitor.keys():
-        kwargs["cert"]=(monitor["cert"][0],monitor["cert"][1])
-    if "headers" in monitor.keys():
-        kwargs["headers"]=monitor["headers"]
-    if "data" in monitor.keys():
-        kwargs["data"]=monitor["data"]
-    if "json" in monitor.keys():
-        kwargs["json"]=monitor["json"]
-    if "ssl_verify" in monitor.keys():
-        if monitor["ssl_verify"] == "False":
-            kwargs["verify"] = False
+### PROCESS THE MONITOR
+try:
+    for monitor in m_data["steps"]:
+        result["checks"].append({})
+        step_index = step_number
+        step_number = step_number + 1
+        step_desc=""
+        if "desc" in monitor.keys(): step_desc = monitor["desc"]
+        if num_steps > 1: 
+            result["checks"][step_index]["desc"] = "Step "+str(step_number)+" - "+step_desc
+        elif step_desc != "":
+            result["checks"][step_index]["desc"] = step_desc
+    
+        if "method" in monitor.keys():
+            method=monitor["method"]
         else:
-            kwargs["verify"]=monitor["ssl_verify"]
+            method="get"
+        disable_sni_warning=False
+        if "disable_sni_warning" in monitor.keys():
+            if monitor["disable_sni_warning"] == "True":
+                disable_sni_warning=True
+    
+        kwargs={'allow_redirects': False, 'timeout': 10 }
+        if "allow_redirects" in monitor.keys():
+            kwargs["allow_redirects"]=monitor["allow_redirects"]
+        if "auth" in monitor.keys():
+            kwargs["auth"]=(monitor["auth"][0],monitor["auth"][1])
+        if "params" in monitor.keys():
+            kwargs["params"]=monitor["params"]
+        if "timeout" in monitor.keys():
+            kwargs["timeout"]=monitor["timeout"]
+        if "conn_timeout" in monitor.keys() or "read_timeout" in monitor.keys():
+            conn_timeout = default_conn_timeout
+            read_timeout = default_read_timeout
+            if "conn_timeout" in monitor.keys():
+                conn_timeout = monitor["conn_timeout"]
+            if "read_timeout" in monitor.keys():
+                read_timeout = monitor["read_timeout"]
+            kwargs["timeout"]=(conn_timeout,read_timeout)
+        if "cert" in monitor.keys():
+            kwargs["cert"]=(monitor["cert"][0],monitor["cert"][1])
+        if "headers" in monitor.keys():
+            kwargs["headers"]=monitor["headers"]
+        if "data" in monitor.keys():
+            kwargs["data"]=monitor["data"]
+        if "json" in monitor.keys():
+            kwargs["json"]=monitor["json"]
+        if "ssl_verify" in monitor.keys():
+            if monitor["ssl_verify"] == "False":
+                kwargs["verify"] = False
+            else:
+                kwargs["verify"]=monitor["ssl_verify"]
+    
+        stop_on_fail=True
+        if "stop_on_fail" in monitor.keys():
+            if monitor["stop_on_fail"] == "False":
+                stop_on_fail=False
+    
+        result["checks"][step_index]["url"] = monitor["url"]
+        if debug: 
+            print("method: "+method, file=sys.stderr)
+            print("kwargs: ",kwargs, file=sys.stderr)
+    
+        # print SNI warning if https and using a version of python that does not support 
+        # SNI (introduced in 2.7.9 and 3.4.x)
+        if "https" in monitor["url"] and disable_sni_warning == False:
+            if sys.version_info[0] == 2 and ( sys.version_info[1] < 7 or (sys.version_info[1] == 7 and sys.version_info[2] < 9)):
+                print("WARNING: SNI not supported until python 2.7.9, you are using {}.{}.{}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2]), file=sys.stderr)
+            if sys.version_info[0] == 3 and sys.version_info[1] < 4 :
+                print("WARNING: SNI not supported until python 3.4.x, you are using {}.{}.{}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2]), file=sys.stderr)
+    
+        try:
+            begintime=time.process_time()
+            response = session.request(method, monitor["url"], **kwargs)
+        except requests.exceptions.ConnectTimeout:
+            endtime=time.process_time()
+            result["checks"][step_index]["time"] = endtime-begintime
+            result["checks"][step_index]["status"] = "CRITICAL"
+            result["checks"][step_index]["message"] = "FAIL: Connection Timeout ("+str(monitor["timeout"])+" seconds)"
+            result["status"]="CRITICAL"
+            raise 
+        endtime=time.process_time()
+        result["checks"][step_index]["time"] = endtime-begintime
+    
+        if debug: print(response.headers, file=sys.stderr)
 
-    stop_on_fail=True
-    if "stop_on_fail" in monitor.keys():
-        if monitor["stop_on_fail"] == "False":
-            stop_on_fail=False
-
-    print("URL: "+monitor["url"])
-    if debug: 
-        print("method: "+method)
-        print("kwargs: ",kwargs)
-
-    # print SNI warning if https and using a version of python that does not support 
-    # SNI (introduced in 2.7.9 and 3.4.x)
-    if "https" in monitor["url"] and disable_sni_warning == False:
-        if sys.version_info[0] == 2 and ( sys.version_info[1] < 7 or (sys.version_info[1] == 7 and sys.version_info[2] < 9)):
-            print("WARNING: SNI not supported until python 2.7.9, you are using {}.{}.{}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2]), file=sys.stderr)
-        if sys.version_info[0] == 3 and sys.version_info[1] < 4 :
-            print("WARNING: SNI not supported until python 3.4.x, you are using {}.{}.{}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2]), file=sys.stderr)
-
-    try:
-        response = session.request(method, monitor["url"], **kwargs)
-    except requests.exceptions.ConnectTimeout:
-        print("FAIL: Connection Timeout ("+str(monitor["timeout"])+" seconds)")
-        if stop_on_fail: exit(1)
-
-    print("HTTP "+str(response.status_code))
-    if debug: print(response.headers)
-    if "status_pass" in monitor.keys():
-        status_pass = str(monitor["status_pass"])
-    else:
-        status_pass = "200"
-    if status_pass != str(response.status_code):
-        print("FAIL status code")
-        if stop_on_fail: exit(1)
-    else:
-        print("PASS status code")
-
-    if debug: print(response.text)
-
-    if "contentcheck" in monitor.keys():
-        if sys.version_info[0] == 2:
-            content = unicode(response.content, errors='ignore')
+        ## Status code check
+        if "status_pass" in monitor.keys():
+            status_pass = str(monitor["status_pass"])
         else:
-            content = str(response.content)
-        if monitor["contentcheck"] in content:
-            print("PASS Content check: \""+monitor["contentcheck"]+"\" found")
+            status_pass = "200"
+        if status_pass != str(response.status_code):
+            result["checks"][step_index]["status"] = "CRITICAL"
+            result["checks"][step_index]["message"] = "HTTP "+str(response.status_code)+" (FAIL)"
+            result["status"]="CRITICAL"
+            raise ApplicationError
         else:
-            print("FAIL Content check: \"{}\" NOT found".format(monitor["contentcheck"]))
-            if stop_on_fail: exit(1)
+            result["checks"][step_index]["status"] = "OK"
+            result["checks"][step_index]["message"] = "HTTP "+str(response.status_code)
+            result["status"]="OK"
+    
+        if debug: print(response.text, file=sys.stderr)
+    
+        ## Content check
+        if "contentcheck" in monitor.keys():
+            if sys.version_info[0] == 2:
+                content = unicode(response.content, errors='ignore')
+            else:
+                content = str(response.content)
+            if monitor["contentcheck"] in content:
+                result["checks"][step_index]["message"] = "Content found: \""+monitor["contentcheck"]+"\""
+            else:
+                result["checks"][step_index]["message"] = "Content MISSING: \"{}\"".format(monitor["contentcheck"])
+                result["checks"][step_index]["status"] = "CRITICAL"
+                result["status"]="CRITICAL"
+                raise ApplicationError
+finally:
+    print(json.dumps(result, sort_keys=True, indent=2))
+    exit(exitcodes[result["status"]])
 
-if debug: print(session) 
