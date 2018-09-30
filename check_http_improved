@@ -170,6 +170,10 @@ try:
                 result["checks"][step_index]["status"] = "CRITICAL"
                 result["status"]="CRITICAL"
                 raise ApplicationError
+except requests.exceptions.ConnectionTimeout:
+    pass
+except requests.exceptions.ConnectionError:
+    pass
 except:
     print("Unexpected error:", sys.exc_info()[0])
     print("Unexpected error:", sys.exc_info()[1])
