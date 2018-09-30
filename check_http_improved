@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # http://docs.python-requests.org/en/master/_modules/requests/api/ useful resource
 #
@@ -7,7 +7,18 @@ from __future__ import print_function
 import sys,requests,json,urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-fh = open("monitor.json")
+# Read in the file; assume "monitor.json" if none given
+if len(sys.argv) == 1:
+    filename="monitor.json"
+else:
+    filename=sys.argv[1]
+
+try:
+    fh = open(filename)
+except FileNotFoundError:
+    print("Could not read {}".format(filename))
+    print("Syntax: {} <jsonfile>  (if jsonfile is omitted, 'monitor.json' is assumed".format(sys.argv[0]))
+    exit(1)
 m_json = fh.read()
 fh.close()
 m_data = json.loads(m_json)

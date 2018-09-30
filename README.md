@@ -16,7 +16,9 @@ This came about due to a desire to have a decent multi-step http monitor from th
 
 ## Usage
 
-./check_http_improved   (currently loads hardcoded "monitor.json")
+./check_http_improved  (looks for and loads "monitor.json")
+or 
+./check_http_improved  <json filename>
 
 ## JSON Spec
 ```
@@ -54,6 +56,6 @@ This came about due to a desire to have a decent multi-step http monitor from th
 - json output
 - preset cookie capability?
 - specify IP for URL / do not use DNS (needs transport adapter, similar to https://github.com/RhubarbSin/example-requests-transport-adapter/blob/master/adapter.py)
-- on Multistep, allow taking a form from one step and submitting it, optionally adding values
+- on Multistep, allow taking a form from one step and submitting it on the next step, optionally adding values
 - proxy capability (std or socks proxy)
 
