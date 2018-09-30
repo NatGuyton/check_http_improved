@@ -22,8 +22,8 @@ else:
 try:
     fh = open(filename)
 except FileNotFoundError:
-    print("Could not read {}".format(filename))
-    print("Syntax: {} <jsonfile>  (if jsonfile is omitted, 'monitor.json' is assumed".format(sys.argv[0]))
+    print("\nERROR: Could not read monitor spec file \"{}\"\n".format(filename))
+    parser.print_help()
     exit(1)
 m_json = fh.read()
 fh.close()

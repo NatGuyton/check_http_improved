@@ -32,7 +32,7 @@ optional arguments:
 ./check_http_improved  -m <json filename> -o nagios
 ```
 
-## JSON Spec
+## Monitor Spec File (JSON)
 ```
 {
   "name": "my monitor name",      (optional)
