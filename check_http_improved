@@ -15,7 +15,7 @@ m_data = json.loads(m_json)
 debug=False
 if "debug" in m_data.keys():
     if m_data["debug"] == "True":
-	debug=True
+        debug=True
 
 if debug: print(m_json) 
 
@@ -37,84 +37,84 @@ for monitor in m_data["steps"]:
         method="get"
     disable_sni_warning=False
     if "disable_sni_warning" in monitor.keys():
-	if monitor["disable_sni_warning"] == "True":
-	    disable_sni_warning=True
+        if monitor["disable_sni_warning"] == "True":
+            disable_sni_warning=True
 
     kwargs={'allow_redirects': False, 'timeout': 10 }
     if "allow_redirects" in monitor.keys():
-	kwargs["allow_redirects"]=monitor["allow_redirects"]
+        kwargs["allow_redirects"]=monitor["allow_redirects"]
     if "auth" in monitor.keys():
-	kwargs["auth"]=(monitor["auth"][0],monitor["auth"][1])
+        kwargs["auth"]=(monitor["auth"][0],monitor["auth"][1])
     if "params" in monitor.keys():
-	kwargs["params"]=monitor["params"]
+        kwargs["params"]=monitor["params"]
     if "timeout" in monitor.keys():
-	kwargs["timeout"]=monitor["timeout"]
+        kwargs["timeout"]=monitor["timeout"]
     if "conn_timeout" in monitor.keys() or "read_timeout" in monitor.keys():
-	conn_timeout = default_conn_timeout
-	read_timeout = default_read_timeout
-	if "conn_timeout" in monitor.keys():
-	    conn_timeout = monitor["conn_timeout"]
-	if "read_timeout" in monitor.keys():
-	    read_timeout = monitor["read_timeout"]
-	kwargs["timeout"]=(conn_timeout,read_timeout)
+        conn_timeout = default_conn_timeout
+        read_timeout = default_read_timeout
+        if "conn_timeout" in monitor.keys():
+            conn_timeout = monitor["conn_timeout"]
+        if "read_timeout" in monitor.keys():
+            read_timeout = monitor["read_timeout"]
+        kwargs["timeout"]=(conn_timeout,read_timeout)
     if "cert" in monitor.keys():
-	kwargs["cert"]=(monitor["cert"][0],monitor["cert"][1])
+        kwargs["cert"]=(monitor["cert"][0],monitor["cert"][1])
     if "headers" in monitor.keys():
-	kwargs["headers"]=monitor["headers"]
+        kwargs["headers"]=monitor["headers"]
     if "data" in monitor.keys():
-	kwargs["data"]=monitor["data"]
+        kwargs["data"]=monitor["data"]
     if "json" in monitor.keys():
-	kwargs["json"]=monitor["json"]
+        kwargs["json"]=monitor["json"]
     if "ssl_verify" in monitor.keys():
-	if monitor["ssl_verify"] == "False":
-	    kwargs["verify"] = False
-	else:
-	    kwargs["verify"]=monitor["ssl_verify"]
+        if monitor["ssl_verify"] == "False":
+            kwargs["verify"] = False
+        else:
+            kwargs["verify"]=monitor["ssl_verify"]
 
     stop_on_fail=True
     if "stop_on_fail" in monitor.keys():
-	if monitor["stop_on_fail"] == "False":
-	    stop_on_fail=False
+        if monitor["stop_on_fail"] == "False":
+            stop_on_fail=False
 
     print("URL: "+monitor["url"])
     if debug: 
-	print("method: "+method)
-	print("kwargs: ",kwargs)
+        print("method: "+method)
+        print("kwargs: ",kwargs)
 
     # print SNI warning if https and using a version of python that does not support 
     # SNI (introduced in 2.7.9 and 3.4.x)
     if "https" in monitor["url"] and disable_sni_warning == False:
-	if sys.version_info[0] == 2 and ( sys.version_info[1] < 7 or (sys.version_info[1] == 7 and sys.version_info[2] < 9)):
-	    print("WARNING: SNI not supported until python 2.7.9, you are using {}.{}.{}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2]), file=sys.stderr)
-	if sys.version_info[0] == 3 and sys.version_info[1] < 4 :
-	    print("WARNING: SNI not supported until python 3.4.x, you are using {}.{}.{}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2]), file=sys.stderr)
+        if sys.version_info[0] == 2 and ( sys.version_info[1] < 7 or (sys.version_info[1] == 7 and sys.version_info[2] < 9)):
+            print("WARNING: SNI not supported until python 2.7.9, you are using {}.{}.{}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2]), file=sys.stderr)
+        if sys.version_info[0] == 3 and sys.version_info[1] < 4 :
+            print("WARNING: SNI not supported until python 3.4.x, you are using {}.{}.{}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2]), file=sys.stderr)
 
     try:
         response = session.request(method, monitor["url"], **kwargs)
     except requests.exceptions.ConnectTimeout:
-	print("FAIL: Connection Timeout ("+str(monitor["timeout"])+" seconds)")
-	if stop_on_fail: exit(1)
+        print("FAIL: Connection Timeout ("+str(monitor["timeout"])+" seconds)")
+        if stop_on_fail: exit(1)
 
     print("HTTP "+str(response.status_code))
     if debug: print(response.headers)
     if "status_pass" in monitor.keys():
-	status_pass = str(monitor["status_pass"])
+        status_pass = str(monitor["status_pass"])
     else:
-	status_pass = "200"
+        status_pass = "200"
     if status_pass != str(response.status_code):
-	print("FAIL status code")
-	if stop_on_fail: exit(1)
+        print("FAIL status code")
+        if stop_on_fail: exit(1)
     else:
-	print("PASS status code")
+        print("PASS status code")
 
     if debug: print(response.text)
 
     if "contentcheck" in monitor.keys():
-	content = unicode(response.content, errors='ignore')
-	if monitor["contentcheck"] in content:
-	    print("PASS Content check: \""+monitor["contentcheck"]+"\" found")
-	else:
-	    print("FAIL Content check: \"{}\" NOT found".format(monitor["contentcheck"]))
-	    if stop_on_fail: exit(1)
+        content = unicode(response.content, errors='ignore')
+        if monitor["contentcheck"] in content:
+            print("PASS Content check: \""+monitor["contentcheck"]+"\" found")
+        else:
+            print("FAIL Content check: \"{}\" NOT found".format(monitor["contentcheck"]))
+            if stop_on_fail: exit(1)
 
 if debug: print(session) 
