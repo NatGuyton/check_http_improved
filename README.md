@@ -40,6 +40,7 @@ This came about due to a desire to have a decent multi-step http monitor from th
       "status_pass": 401,			      (default 200, but can set expected alternate status)
       "contentcheck": "Some text in the response",    (optional)
       "cert": ["/path/cert_file","/path/key_file"],   (optional SSL client cert)
+      "disable_sni_warning": "True",                  (default False)
       "ssl_verify": "/path/to/ca_bundle",             (default True, also can be "False", or path to ca file; the default is from python package Certifi, not OS. https://certifiio.readthedocs.io/en/latest/)
       "stop_on_fail": "False"                         (default True)
     },

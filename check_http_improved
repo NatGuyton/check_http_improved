@@ -2,8 +2,9 @@
 #
 # http://docs.python-requests.org/en/master/_modules/requests/api/ useful resource
 #
+from __future__ import print_function
 
-import requests,json,urllib3
+import sys,requests,json,urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 fh = open("monitor.json")
@@ -34,6 +35,10 @@ for monitor in m_data["steps"]:
         method=monitor["method"]
     else:
         method="get"
+    disable_sni_warning=False
+    if "disable_sni_warning" in monitor.keys():
+	if monitor["disable_sni_warning"] == "True":
+	    disable_sni_warning=True
 
     kwargs={'allow_redirects': False, 'timeout': 10 }
     if "allow_redirects" in monitor.keys():
@@ -76,6 +81,14 @@ for monitor in m_data["steps"]:
 	print("method: "+method)
 	print("kwargs: ",kwargs)
 
+    # print SNI warning if https and using a version of python that does not support 
+    # SNI (introduced in 2.7.9 and 3.4.x)
+    if "https" in monitor["url"] and disable_sni_warning == False:
+	if sys.version_info[0] == 2 and ( sys.version_info[1] < 7 or (sys.version_info[1] == 7 and sys.version_info[2] < 9)):
+	    print("WARNING: SNI not supported until python 2.7.9, you are using {}.{}.{}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2]), file=sys.stderr)
+	if sys.version_info[0] == 3 and sys.version_info[1] < 4 :
+	    print("WARNING: SNI not supported until python 3.4.x, you are using {}.{}.{}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2]), file=sys.stderr)
+
     try:
         response = session.request(method, monitor["url"], **kwargs)
     except requests.exceptions.ConnectTimeout:
@@ -89,19 +102,19 @@ for monitor in m_data["steps"]:
     else:
 	status_pass = "200"
     if status_pass != str(response.status_code):
-	print "FAIL status code"
+	print("FAIL status code")
 	if stop_on_fail: exit(1)
     else:
-	print "PASS status code"
+	print("PASS status code")
 
-    if debug: print(response.content)
+    if debug: print(response.text)
 
     if "contentcheck" in monitor.keys():
 	content = unicode(response.content, errors='ignore')
 	if monitor["contentcheck"] in content:
-	    print "PASS Content check: \""+monitor["contentcheck"]+"\" found"
+	    print("PASS Content check: \""+monitor["contentcheck"]+"\" found")
 	else:
-	    print "FAIL Content check: \"{}\" NOT found".format(monitor["contentcheck"])
+	    print("FAIL Content check: \"{}\" NOT found".format(monitor["contentcheck"]))
 	    if stop_on_fail: exit(1)
 
 if debug: print(session) 
