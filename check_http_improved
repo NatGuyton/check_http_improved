@@ -71,7 +71,7 @@ try:
     
         kwargs={'allow_redirects': False, 'timeout': 10 }
         if "allow_redirects" in monitor.keys():
-            kwargs["allow_redirects"]=monitor["allow_redirects"]
+            if monitor["allow_redirects"] != "False": kwargs["allow_redirects"]=monitor["allow_redirects"]
         if "auth" in monitor.keys():
             kwargs["auth"]=(monitor["auth"][0],monitor["auth"][1])
         if "params" in monitor.keys():
