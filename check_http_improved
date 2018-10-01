@@ -184,9 +184,14 @@ except:
     print("Unexpected error:", sys.exc_info()[2])
 finally:
 
+    # Calc total time
+    result["time"]=0
+    for check in result["checks"]:
+        if "time" in check.keys(): result["time"] += check["time"]
+
     # Print in the desired output format and exit
     if args.output == "raw":
-        print("Monitor: {}\nResult: {}".format(result["monitor"],result["status"]))
+        print("Monitor: {}\nResult: {}\nTime: {} seconds".format(result["monitor"],result["status"],result["time"]))
         checkcount=0
         for check in result["checks"]:
             print("")
@@ -196,7 +201,7 @@ finally:
 	# get the message from the last check run
         numchecks = len(result["checks"])
         message = result["checks"][numchecks-1]["message"]
-        print("{} - {}".format(result["status"],message))
+        print("{} - {}|{} seconds".format(result["status"],message,result["time"]))
     else:
         print(json.dumps(result, sort_keys=True, indent=2))
 
