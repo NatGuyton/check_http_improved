@@ -43,7 +43,7 @@ optional arguments:
   "checks": [
     { 
       "desc": "login to xyz",                         (optional)
-      "url": "https://somesite.example.com",
+      "url": "https://somesite.example.com",          (url or "previous location" if previous step had a Location redirect header)
       "method": "get",                                (default "get", other options "post","put","options", etc)
       "allow_redirects": "True",                      (default False)
       "params": {"var1":"val1","var2":"val2"},        (optional form data)

@@ -68,6 +68,9 @@ try:
         if "disable_sni_warning" in monitor.keys():
             if monitor["disable_sni_warning"] == "True":
                 disable_sni_warning=True
+
+        if monitor["url"] == "previous location":
+            monitor["url"] = previousresponse.headers["Location"]
     
         kwargs={'allow_redirects': False, 'timeout': 10 }
         if "allow_redirects" in monitor.keys():
@@ -139,6 +142,7 @@ try:
         result["checks"][step_index]["time"] = endtime-begintime
     
         if debug: print(response.headers, file=sys.stderr)
+        previousresponse = response  # might use on next step
 
         ## Status code check
         if "status_pass" in monitor.keys():
