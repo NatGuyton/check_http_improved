@@ -195,7 +195,8 @@ finally:
 
     # Print in the desired output format and exit
     if args.output == "raw":
-        print("Monitor: {}\nResult: {}\nTime: {} seconds".format(result["monitor"],result["status"],result["time"]))
+        if "monitor" in result.keys(): print("Monitor: {}".format(result["monitor"]))
+        print("Result: {}\nTime: {} seconds".format(result["status"],result["time"]))
         checkcount=0
         for check in result["checks"]:
             print("")
