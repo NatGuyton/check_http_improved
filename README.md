@@ -28,14 +28,18 @@ optional arguments:
                         optional output formats
   -m MONITOR, --monitor MONITOR
                         monitor spec file, defaults to monitor.json
+  -M MONITOR_JSON, --monitor_json MONITOR_JSON
+                        json text of a monitor spec
 
 
 ./check_http_improved   (looks for and loads "monitor.json")
 
 ./check_http_improved  -m <json filename> -o nagios
+
+./check_http_improved  -M '{"steps":[{"url":"https://example.com","contentcheck":"foo"}]}' -o nagios
 ```
 
-## Monitor Spec File (JSON)
+## Monitor Spec - JSON Input or File 
 ```
 {
   "name": "my monitor name",      (optional)

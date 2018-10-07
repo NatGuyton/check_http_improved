@@ -11,22 +11,26 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 parser = argparse.ArgumentParser()
 parser.add_argument("-o", "--output", choices=["json", "raw", "nagios"], help="optional output formats, default json")
 parser.add_argument("-m", "--monitor", help="monitor spec file, defaults to monitor.json")
+parser.add_argument("-M", "--monitor_json", help="json text of a monitor spec")
 args = parser.parse_args()
 
 # Read in the file; assume "monitor.json" if none given
-if args.monitor:
-    filename=args.monitor
+if args.monitor_json:
+    m_json = args.monitor_json
 else:
-    filename="monitor.json"
+    if args.monitor:
+        filename=args.monitor
+    else:
+        filename="monitor.json"
+    try:
+        fh = open(filename)
+    except FileNotFoundError:
+        print("\nERROR: Could not read monitor spec file \"{}\"\n".format(filename))
+        parser.print_help()
+        exit(1)
+    m_json = fh.read()
+    fh.close()
 
-try:
-    fh = open(filename)
-except FileNotFoundError:
-    print("\nERROR: Could not read monitor spec file \"{}\"\n".format(filename))
-    parser.print_help()
-    exit(1)
-m_json = fh.read()
-fh.close()
 m_data = json.loads(m_json)
 
 debug=False
