@@ -21,6 +21,7 @@ This should ideally be used with Python 3.4 or higher if you want SNI support.
 
 ```
 usage: check_http_improved [-h] [-o {raw,json,nagios}] [-m MONITOR]
+                           [-M MONITOR_JSON] [-d]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -30,7 +31,7 @@ optional arguments:
                         monitor spec file, defaults to monitor.json
   -M MONITOR_JSON, --monitor_json MONITOR_JSON
                         json text of a monitor spec
-
+  -d, --debug           debug mode
 
 ./check_http_improved   (looks for and loads "monitor.json")
 
