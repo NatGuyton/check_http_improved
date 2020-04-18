@@ -206,6 +206,8 @@ finally:
 	# get the message from the last check run
         numchecks = len(result["checks"])
         message = result["checks"][numchecks-1]["message"]
+        # change "|" in message if exists, since it tells nagios/icinga that perfdata starts there
+        message = message.replace("|",":")
         print("{} - {}|{} seconds".format(result["status"],message,result["time"]))
     else:
         print(json.dumps(result, sort_keys=True, indent=2))
