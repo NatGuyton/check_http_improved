@@ -4,8 +4,7 @@
 #
 from __future__ import print_function
 
-import sys,requests,json,urllib3,time,argparse
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+import sys,requests,json,time,argparse,warnings
 
 ### GET INPUTS
 parser = argparse.ArgumentParser()
@@ -127,7 +126,9 @@ try:
     
         try:
             begintime=time.process_time()
-            response = session.request(method, monitor["url"], **kwargs)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                response = session.request(method, monitor["url"], **kwargs)
         except requests.exceptions.ConnectTimeout:
             endtime=time.process_time()
             result["checks"][step_index]["time"] = endtime-begintime

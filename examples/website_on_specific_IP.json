@@ -1,0 +1,10 @@
+{
+  "steps": [
+    {
+      "url":"https://100.100.253.74/my/site",
+      "ssl_verify": "False",
+      "headers":{"Host":"my.sitename.com"},
+      "contentcheck":"Home Page"
+    } 
+  ]
+}

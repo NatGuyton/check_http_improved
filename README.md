@@ -44,7 +44,7 @@ optional arguments:
 {
   "name": "my monitor name",      (optional)
   "debug": "True",                (default "False")
-  "checks": [
+  "steps": [
     { 
       "desc": "login to xyz",                         (optional)
       "url": "https://somesite.example.com",          (url or "previous location" if previous step had a Location redirect header)
