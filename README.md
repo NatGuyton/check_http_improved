@@ -73,7 +73,6 @@ optional arguments:
 ## Note to self/roadmap
 
 - preset cookie capability?
-- specify IP for URL / do not use DNS (needs transport adapter, similar to https://github.com/Roadmaster/forcediphttpsadapter)
 - on Multistep, allow taking a form from one step and submitting it on the next step, optionally adding values, similar to https://mechanize.readthedocs.io/en/latest/
 - proxy capability (std or socks proxy)
 - consider kerberos support - https://github.com/requests/requests-kerberos

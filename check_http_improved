@@ -11,6 +11,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-o", "--output", choices=["json", "raw", "nagios"], help="optional output formats, default json")
 parser.add_argument("-m", "--monitor", help="monitor spec file, defaults to monitor.json")
 parser.add_argument("-M", "--monitor_json", help="json text of a monitor spec")
+parser.add_argument("-d", "--debug", help="debug mode", action='store_true')
 args = parser.parse_args()
 
 # Read in the file; assume "monitor.json" if none given
@@ -33,9 +34,8 @@ else:
 m_data = json.loads(m_json)
 
 debug=False
-if "debug" in m_data.keys():
-    if m_data["debug"] == "True":
-        debug=True
+if args.debug or ("debug" in m_data.keys() and m_data["debug"] == "True"):
+    debug=True
 if debug: print(m_json, file=sys.stderr) 
 
 
