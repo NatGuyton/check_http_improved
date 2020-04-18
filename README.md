@@ -76,4 +76,5 @@ optional arguments:
 - specify IP for URL / do not use DNS (needs transport adapter, similar to https://github.com/Roadmaster/forcediphttpsadapter)
 - on Multistep, allow taking a form from one step and submitting it on the next step, optionally adding values, similar to https://mechanize.readthedocs.io/en/latest/
 - proxy capability (std or socks proxy)
-
+- consider kerberos support - https://github.com/requests/requests-kerberos
+- see about generating HAR files for requests?   https://stackoverflow.com/questions/56442782/how-to-serialize-requests-response-object-as-har
