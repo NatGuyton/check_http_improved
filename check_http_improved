@@ -74,16 +74,17 @@ try:
 
         if monitor["url"] == "previous location":
             monitor["url"] = previousresponse.headers["Location"]
+
+        if "timeout" not in monitor.keys():
+            monitor["timeout"]=10
     
-        kwargs={'allow_redirects': False, 'timeout': 10 }
+        kwargs={'allow_redirects': False}
         if "allow_redirects" in monitor.keys():
             if monitor["allow_redirects"] != "False": kwargs["allow_redirects"]=monitor["allow_redirects"]
         if "auth" in monitor.keys():
             kwargs["auth"]=(monitor["auth"][0],monitor["auth"][1])
         if "params" in monitor.keys():
             kwargs["params"]=monitor["params"]
-        if "timeout" in monitor.keys():
-            kwargs["timeout"]=monitor["timeout"]
         if "conn_timeout" in monitor.keys() or "read_timeout" in monitor.keys():
             conn_timeout = default_conn_timeout
             read_timeout = default_read_timeout
@@ -91,7 +92,8 @@ try:
                 conn_timeout = monitor["conn_timeout"]
             if "read_timeout" in monitor.keys():
                 read_timeout = monitor["read_timeout"]
-            kwargs["timeout"]=(conn_timeout,read_timeout)
+            monitor["timeout"]=(conn_timeout,read_timeout)
+        kwargs["timeout"]=monitor["timeout"]
         if "cert" in monitor.keys():
             kwargs["cert"]=(monitor["cert"][0],monitor["cert"][1])
         if "headers" in monitor.keys():
